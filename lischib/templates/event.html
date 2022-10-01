@@ -1,0 +1,143 @@
+{% extends "layout.html" %}
+{% block content %}
+<section class="hero is-fullheight is-black is-bold">
+    <div class="hero-head p-6">
+        <div class="container has-text-centered">
+            <a href="{{ url_for('adjust_event', event_id=party.id)}}" class="title p-6">
+                {{ party.name }}
+            </a>
+
+            <br>
+            <nav class="level p-6">
+                <div class="level-item">
+                    <div >
+                        <p class="heading">capacity</p>
+                        <p class="title">
+                            {{ party.capacity}}
+                        </p>
+                    </div>
+                </div>
+                <div class="level-item">
+                  <div>
+                    <p class="heading">reserved</p>
+                    <p class="title">
+                      {{ reserved }}
+                    </p>
+                  </div>
+                </div>
+                <div class="level-item">
+                    <div>
+                        <p class="heading">sold</p>
+                        <p class="title">
+                            {{ sold }}
+                        </p>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <div class="hero-body">
+        <div class="container has-text-left">
+            <p class="title">Tickettypes</p>
+            {% for ticket in tickets %}
+            <section class="hero is-black">
+                <div class="hero-head p-6">
+                    <div class="container has-text-centered">
+                        <a href="{{ url_for('adjust_tickettype', event_id=party.id, tickettype_id=ticket.id)}}" class="title has-text-centered">
+                            {{ ticket.name }}
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-body">
+                    <div class="container has-text-centered">
+
+                        <nav class="level">
+                            <div class="level-item">
+                                <div>
+                                    <p class="heading">quantity</p>
+                                    <p class="title">
+                                        {{ ticket.quantity}}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="level-item">
+                              <div>
+                                <p class="heading">reserved</p>
+                                <p class="title">
+                                  {{ ticket.reserved }}
+                                </p>
+                              </div>
+                            </div>
+                            <div class="level-item">
+                                <div>
+                                    <p class="heading">sold</p>
+                                    <p class="title">
+                                        {{ ticket.sold }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="level-item">
+                                <div>
+                                    <p class="heading">left</p>
+                                    <p class="title">
+                                        {{ ticket.quantity - ticket.sold }}
+                                    </p>
+                                </div>
+                            </div>
+                            {% if ticket.expire %}
+                            <div class="level-item">
+                                <div>
+                                    <p class="heading">expires</p>
+                                    <p class="title">
+                                        {{ ticket.expire }}
+                                    </p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </nav>
+                    </div>
+                </div>
+            </section>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="hero-foot p-6">
+        <div class="container has-text-right">
+          <a href="{{ url_for('create_tickettype', event_id=party.id) }}" class="button is-rounded">Create Tickettype</a>
+            <a href="{{ url_for('create_custom_question', event_id=party.id) }}" class="button is-rounded">Add checkout question</a>
+        </div>
+    </div>
+</section>
+{% for order in orders %}
+<section class="hero is-medium is-black is-bold">
+  <div class="hero-head p-6">
+    <div class="container has-text-centered">
+      <nav class="level">
+        {% for ct in order.cart_tickets %}
+            <div class="level-item">
+              <div>
+                <p class="heading">
+                  {{ ct.ticket_name }}
+                </p>
+                 <p class="title">
+                   {{ ct.quantity }}
+                 </p>
+              </div>
+          </div>
+        {% endfor %}
+      </nav>
+    </div>
+  </div>
+  <div class="hero-body">
+    <div class="container has-text-left">
+      <p class="title">
+        {{ order.email }}
+      </p>
+      <p class="subtitle">
+        {{ order.form }}
+        </p>
+    </div>
+  </div>
+</section>
+{% endfor %}
+{% endblock content %}

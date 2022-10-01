@@ -1,0 +1,152 @@
+
+{% extends "layout.html" %}
+{% block content %}
+<section class="hero is-fullheight is-black is-bold">
+    <div class="hero-body">
+        <div class="container has-text-left is-fluid">
+            <p class="title">Create Event</p>
+            <form method="post" action="">
+                {{ form.hidden_tag() }}
+                <div class="form-check form-switch has-text-right  p-6">
+                  {{ form.share_stats(class="form-check-input is-size-4", checked="true")}}
+                  {{ form.share_stats.label(class="form-check-label is-size-4 title") }}
+
+                </div>
+                <div class="field">
+                  {{ form.name.label(class="label has-text-white") }}
+                <div class="control">
+                  {{ form.name(class="input is-rounded") }}
+                </div>
+                {% if form.name.errors %}
+                  {% for error in form.name.errors %}
+                  <p class="help is-danger">
+                    {{ error }}
+                  </p>
+                  {% endfor %}
+                {% endif %}
+              </div>
+              <div class="field">
+                {{ form.venue.label(class="label has-text-white") }}
+              <div class="control">
+                {{ form.venue(class="input is-rounded") }}
+              </div>
+              {% if form.venue.errors %}
+                {% for error in form.venue.errors %}
+                <p class="help is-danger">
+                  {{ error }}
+                </p>
+                {% endfor %}
+              {% endif %}
+            </div>
+            <div class="field">
+              {{ form.city.label(class="label has-text-white") }}
+            <div class="control">
+              {{ form.city(class="input is-rounded") }}
+            </div>
+            {% if form.city.errors %}
+              {% for error in form.city.errors %}
+              <p class="help is-danger">
+                {{ error }}
+              </p>
+              {% endfor %}
+            {% endif %}
+          </div>
+            <div class="field">
+              {{ form.capacity.label(class="label has-text-white") }}
+            <div class="control">
+              {{ form.capacity(class="input is-rounded") }}
+            </div>
+            {% if form.capacity.errors %}
+              {% for error in form.capacity.errors %}
+              <p class="help is-danger">
+                {{ error }}
+              </p>
+              {% endfor %}
+            {% endif %}
+          </div>
+            <div class="field">
+                {{ form.address_one.label(class="label has-text-white") }}
+              <div class="control">
+                {{ form.address_one(class="input is-rounded") }}
+              </div>
+              {% if form.address_one.errors %}
+                {% for error in form.address_one.errors %}
+                <p class="help is-danger">
+                  {{ error }}
+                </p>
+                {% endfor %}
+              {% endif %}
+            </div>
+            <div class="field">
+              {{ form.address_two.label(class="label has-text-white") }}
+            <div class="control">
+              {{ form.address_two(class="input is-rounded") }}
+            </div>
+            {% if form.address_two.errors %}
+              {% for error in form.address_two.errors %}
+              <p class="help is-danger">
+                {{ error }}
+              </p>
+              {% endfor %}
+            {% endif %}
+          </div>
+
+            <div class="field">
+              {{ form.date_start.label(class="label has-text-white") }}
+            <div class="control">
+              {{ form.date_start(class="input is-rounded") }}
+            </div>
+            {% if form.date_start.errors %}
+              {% for error in form.date_start.errors %}
+              <p class="help is-danger">
+                {{ error }}
+              </p>
+              {% endfor %}
+            {% endif %}
+          </div>
+          <div class="field">
+            {{ form.time_start.label(class="label has-text-white") }}
+          <div class="control">
+            {{ form.time_start(class="input is-rounded") }}
+          </div>
+          {% if form.time_start.errors %}
+            {% for error in form.time_start.errors %}
+            <p class="help is-danger">
+              {{ error }}
+            </p>
+            {% endfor %}
+          {% endif %}
+        </div>
+                    <div class="field">
+              {{ form.date_end.label(class="label has-text-white") }}
+            <div class="control">
+              {{ form.date_end(class="input is-rounded") }}
+            </div>
+            {% if form.date_end.errors %}
+              {% for error in form.date_end.errors %}
+              <p class="help is-danger">
+                {{ error }}
+              </p>
+              {% endfor %}
+            {% endif %}
+          </div>
+          <div class="field">
+            {{ form.time_end.label(class="label has-text-white") }}
+          <div class="control">
+            {{ form.time_end(class="input is-rounded") }}
+          </div>
+          {% if form.time_end.errors %}
+            {% for error in form.time_end.errors %}
+            <p class="help is-danger">
+              {{ error }}
+            </p>
+            {% endfor %}
+          {% endif %}
+        </div>
+            <br>
+              {{ form.submit(class="button is-rounded is-fullwidth")}}
+              </form>
+        </div>
+    </div>
+</section>
+{% endblock content %}

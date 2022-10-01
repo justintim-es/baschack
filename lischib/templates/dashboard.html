@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block content %}
+<section class="hero is-fullheight is-black is-bold">
+    <section class="hero is-halfheight is-black is-bold">
+        <div class="hero-head p-6">
+            <div class="container has-text-right"><a href="{{ url_for('create_event') }}" class="button is-rounded">create</a></div>
+        </div>
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <p class="title">Events</p>
+            </div>
+        </div>
+    </section>
+    {% for party in parties %}
+<section class="hero is-halfheight is-black is-bold">
+    <div class="hero-body">
+      <div class="container has-text-centered">
+        <a href="{{ url_for('event', event_id=party.id) }}" class="title">
+        {{ party.name }}
+        </a>
+      </div>
+    </div>
+</section>
+{% endfor %}
+</section>
+{% endblock content %}

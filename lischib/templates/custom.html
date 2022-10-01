@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block content %}
+<section class="hero is-fullheight is-black is-bold">
+  <div class="hero-body">
+    <div class="container has-text-left">
+     <p class="title">
+       New checkout question
+     </p>
+     <form action="" method="post">
+       {{ form.hidden_tag() }}
+       <div class="field">
+         {{ form.question.label(class="label has-text-white") }}
+       <div class="control">
+         {{ form.question(class="input is-rounded") }}
+       </div>
+       {% if form.question.errors %}
+         {% for error in form.question.errors %}
+         <p class="help is-danger">
+           {{ error }}
+         </p>
+         {% endfor %}
+       {% endif %}
+      </div>
+      <br>
+      {{ form.submit(class="button is-rounded is-fullwidth")}}
+     </form>
+  </div>
+  </div>
+  <div class="hero-foot p-6">
+    <div class="container has-text-left">
+      <p class="heading">custom questions:</p>
+      {% for question in questions %}
+      <p class="title">
+        {{ question.question }}
+      </p>
+      {% endfor %}
+    </div>
+  </div>
+
+</section>
+
+{% endblock content %}

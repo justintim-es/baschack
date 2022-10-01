@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+{% block content %}
+<section class="hero is-fullheight is-black is-bold">
+    <div class="hero-head p-6">
+        <div class="container has-text-centered">
+            
+        </div>
+    </div>
+    <div class="hero-body">
+      <div class="container has-text-left">
+        <form method="post" action="">
+          {{ form.hidden_tag() }}
+          <div class="field">
+            {{ form.name.label(class="label has-text-white") }}
+          <div class="control">
+            {{ form.name(class="input is-rounded") }}
+          </div>
+          {% if form.name.errors %}
+            {% for error in form.name.errors %}
+            <p class="help is-danger">
+              {{ error }}
+            </p>
+            {% endfor %}
+          {% endif %}
+        </div>
+        <div class="field">
+          {{ form.price.label(class="label has-text-white") }}
+        <div class="control">
+          {{ form.price(class="input is-rounded") }}
+        </div>
+        {% if form.price.errors %}
+          {% for error in form.price.errors %}
+          <p class="help is-danger">
+            {{ error }}
+          </p>
+          {% endfor %}
+        {% endif %}
+      </div>
+        <div class="field">
+          {{ form.quantity.label(class="label has-text-white") }}
+        <div class="control">
+          {{ form.quantity(class="input is-rounded") }}
+        </div>
+        {% if form.quantity.errors %}
+          {% for error in form.quantity.errors %}
+          <p class="help is-danger">
+            {{ error }}
+          </p>
+          {% endfor %}
+        {% endif %}
+      </div>
+      <div class="field">
+        {{ form.expire.label(class="label has-text-white") }}
+      <div class="control">
+        {{ form.expire(class="input is-rounded") }}
+      </div>
+      {% if form.expire.errors %}
+        {% for error in form.expire.errors %}
+        <p class="help is-danger">
+          {{ error }}
+        </p>
+        {% endfor %}
+      {% endif %}
+    </div>
+      <br>
+      {{ form.submit(class="button is-rounded is-fullwidth")}}
+     </form>
+      </div>
+    </div>
+</section>
+
+{% endblock content %}
