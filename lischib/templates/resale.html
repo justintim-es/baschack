@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+    <section class="hero is-fullheight is-width is-black is-bold">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <p class="title">
+                    {{ 
+                        cart.email
+                    }}
+                </p>
+                <p class="subtitle">
+                    {{ cart.form }}
+                </p>
+            </div>
+        </div>
+    </section>
+{% endblock content %}

@@ -1,4 +1,3 @@
-
 from flask import render_template, redirect, url_for, make_response, jsonify, request
 from lischib import app, db, mail
 from lischib.forms import OrganizerRegisterForm, OrganizerLoginForm, CreateEventForm, CreateTickettypeForm, CustomQuestionForm
@@ -142,12 +141,23 @@ def event(event_id):
             cart = Cart.query.get(ct.cart_id)
             your_cts = CartTickettype.query.filter_by(cart_id=cart.id).all()
             for y_cts in your_cts:
+                resales = Resale.query.filter_by(cart_tickettype_id=y_cts.id).all()
+                y_cts.resales = resales
                 y_cts.ticket_name = Tickettype.query.get(
                     y_cts.tickettype_id).name
             orders.append(CartVisitor(cart.email, cart.form, your_cts))
+                
+
     return render_template('event.html', party=event, sold=sold, tickets=tickets, reserved=reserved, orders=orders)
 
 
+
+@app.route('/event/resale/<event_id>/<id>')
+@login_required
+def event_resale(event_id, id):
+    cart = Cart.query.get(resale.cart_id)
+    resale = Resale.query.get(int(id))
+    return render_template('resale.html', resale=resale, cart=cart)
 @app.route('/create-tickettype/<event_id>', methods=["GET", "POST"])
 @login_required
 def create_tickettype(event_id):
@@ -206,6 +216,7 @@ def adjust_event(event_id):
 @app.route('/adjust-tickettype/<event_id>/<tickettype_id>', methods=["GET", "POST"])
 @login_required
 def adjust_tickettype(event_id, tickettype_id):
+
     tickettype = Ticket.query.get(int(tickettype_id))
     form = CreateTickettypeForm(obj=tickettype)
     form.event_id = event_id
@@ -230,7 +241,9 @@ def api_event(event_id):
     for tickettype in tickettypes:
         for c_t in CartTickettype.query.filter_by(tickettype_id=tickettype.id).all():
             if datetime.now() > c_t.reserved_until:
-                tickettype.reserved -= c_t.quantity
+                while tickettype.reserved > 0:
+                    if tickettype.reserved == 0: break
+                    tickettype.reserved -= c_t.quantity
     db.session.commit()
     if party.share_stats:
         pSchema = PartySchemaWithCapacity()
@@ -368,7 +381,7 @@ def create(event, recognition):
                 for i in range(c_t.quantity):
                     tickettype = Tickettype.query.get(c_t.tickettype_id)
                     ticket = Ticket(value=token_hex(256), party_id=event,
-                                    cart_id=cart.id, ticket_name=tickettype.name)
+                                    cart_id=cart.id, ticket_name=tickettype.name, tickettype_id=tickettype.id)
                     db.session.add(ticket)
                     tickettype.sold += 1
                     tickettype.reserved -= 1
@@ -447,10 +460,13 @@ def api_tickets_sell(event, recognition, value):
     json = request.json
     ticket = Ticket.query.filter_by(value=value).first()
     cart = Cart.query.filter_by(recognition=recognition).first()
+    cart_tickettype= CartTickettype.query.filter_by(cart_id=cart.id).first()
     price = int(json['price']) * 100
     resale = Resale(
         price=price,
-        ticket_id=ticket.id
+        ticket_id=ticket.id,
+        tickettype_id=cart_tickettype.tickettype_id,
+        cart_tickettype_id=cart_tickettype.id
     )
     db.session.add(resale)
     db.session.commit()
@@ -518,6 +534,16 @@ def api_resale_reserve(id):
     cart = Cart(recognition=new_recognition)
     db.session.add(cart)
     db.session.commit()
+    ticket = Ticket.query.get(resale.ticket_id)
+
+    cart_ticket = CartTickettype(
+        tickettype_id=ticket.tickettype_id,
+        cart_id=cart.id,
+        quantity=1,
+        is_payed=False,
+        is_resale=True
+    )
+    db.session.add(cart_ticket)
     resale.cart_id = cart.id
     db.session.commit()
     return make_response(new_recognition, 200)
@@ -553,7 +579,8 @@ def api_resale_redeem(id, old_recognition):
             value=token_hex(256),
             party_id=ticket.party_id,
             cart_id=resale.cart_id,
-            ticket_name=ticket.ticket_name
+            ticket_name=ticket.ticket_name,
+            tickettype_id=ticket.tickettype_id
         )
         db.session.add(new_ticket)
         db.session.commit()

@@ -33,6 +33,14 @@
                         </p>
                     </div>
                 </div>
+                <div class="level-item">
+                  <div>
+                      <p class="heading">left</p>
+                      <p class="title">
+                          {{ party.capacity - sold }}
+                      </p>
+                  </div>
+              </div>
             </nav>
         </div>
     </div>
@@ -122,7 +130,20 @@
                  <p class="title">
                    {{ ct.quantity }}
                  </p>
+                 <br>
+                {% for resale in ct.resales %}
+                {% if resale.is_resold %}
+                <p class="subtitle">
+                     1 sold <a href="{{ url_for('event_resale', event_id=party.id, id=resale.id) }}">info</a>
+                </p>
+                {% else %}
+                <p class="subtitle">
+                  1 for sale
+                </p>
+                {% endif %}
+                 {% endfor %}
               </div>
+              
           </div>
         {% endfor %}
       </nav>

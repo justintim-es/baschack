@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 @login_manager.user_loader
 def load_user(organizer_id):
-    return Organizer.query.get(int(organizer_id))
+     return Organizer.query.get(int(organizer_id))
 
 
 class Organizer(db.Model, UserMixin):
@@ -101,6 +101,8 @@ class Tickettype(db.Model):
     cart_tickets = db.relationship('CartTickettype')
     left = db.column_property(quantity - sold)
     reserved = db.Column(db.Integer, default=0)
+    resales = db.relationship('Resale', backref='tickettype', uselist=False)
+    tickets = db.relationship('Ticket')
 
 
 class TickettypeSchema(Schema):
@@ -141,6 +143,7 @@ class Ticket(db.Model):
     ticket_name = db.Column(db.String(120), nullable=False)
     resale = db.relationship('Resale', backref='ticket', uselist=False)
     is_resold = db.Column(db.Boolean, default=False)
+    tickettype_id = db.Column(db.Integer, db.ForeignKey('tickettype.id'), nullable=False)
 
 
 class Resale(db.Model):
@@ -154,6 +157,8 @@ class Resale(db.Model):
     cart_id = db.Column(db.Integer, db.ForeignKey('cart.id'), nullable=True)
     ticket_id = db.Column(db.Integer, db.ForeignKey(
         'ticket.id'), nullable=False, unique=True)
+    tickettype_id = db.Column(db.Integer, db.ForeignKey('tickettype.id'), nullable=False)
+    cart_tickettype_id = db.Column(db.Integer, db.ForeignKey('cart_tickettype.id'), nullable=False)
 
 
 class ResaleSchema(Schema):
