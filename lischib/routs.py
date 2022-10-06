@@ -10,7 +10,7 @@ from secrets import token_hex
 from datetime import datetime, timedelta
 import stripe
 bcrypt = Bcrypt(app)
-stripe.api_key = 'sk_test_51KVxlPAGQn2FqgzDtqLjvtGTOEEFqOVjNCMALmXVSodlaplQ6hHE1yczSONPOSGa8GVRpVUyGhnKQ3zYEfVvaeWM001Wtrx9YB'
+stripe.api_key = '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'
 
 
 @app.route('/register', methods=["GET", "POST"])
@@ -304,7 +304,6 @@ def api_create_cart():
         is_payed=False,
     )
     db.session.add(cart_ticket)
-
     db.session.commit()
     print(tickettype.reserved)
     return make_response({
@@ -348,6 +347,8 @@ def api_cart(event, recognition):
     cart_tickets = CartTickettype.query.filter_by(cart_id=cart.id, is_payed=False).all()
     cart_items = []
     for ct in cart_tickets:
+        print(ct.id)
+        print(ct.reserved_until)
         ticket = Tickettype.query.get(int(ct.tickettype_id))
         cart_items.append(CartItem(ticket.name, ct.quantity, ticket.price))
         if datetime.now() > ct.reserved_until:
@@ -373,7 +374,7 @@ def api_cart(event, recognition):
                 'quantity': 1
             }
         ],
-        payment_method_types=['card'],
+        payment_method_types=['card', 'ideal'],
         mode="payment",
         payment_intent_data={
             'application_fee_amount': 29
