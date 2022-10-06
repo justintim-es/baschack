@@ -1,4 +1,5 @@
 from lischib import app
 
 
-app.run(debug=True, port=5151)
+if __name__ =='__main__':
+    app.run(debug=True, port=5152)

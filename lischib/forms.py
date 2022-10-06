@@ -61,3 +61,9 @@ class CreateTickettypeForm(FlaskForm):
 class CustomQuestionForm(FlaskForm):
     question = StringField('Question', validators=[DataRequired()])
     submit = SubmitField('add custom question')
+
+
+
+class OnboardForm(FlaskForm):
+    is_nl = BooleanField('Is your company based in the Netherlands')
+    submit = SubmitField('onboard')

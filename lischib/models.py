@@ -39,6 +39,8 @@ class Party(db.Model):
     tickets = db.relationship('Ticket')
     questions = db.relationship('CustomQuestion')
     date_created = db.Column(db.DateTime(), default=datetime.now())
+    reserved = db.Column(db.Integer, default=0)
+    sold = db.Column(db.Integer, default=0)
 
 
 class PartySchema(Schema):

@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, make_response, jsonify, request
 from lischib import app, db, mail
-from lischib.forms import OrganizerRegisterForm, OrganizerLoginForm, CreateEventForm, CreateTickettypeForm, CustomQuestionForm
+from lischib.forms import OrganizerRegisterForm, OrganizerLoginForm, CreateEventForm, CreateTickettypeForm, CustomQuestionForm, OnboardForm
 from lischib.models import Organizer, Party, Ticket, PartySchema, PartySchemaWithCapacity, CartTickettype, TickettypeSchema, TickettypeSchemaWithStats, Cart, CartItem, CartItemSchema, Tickettype, CustomQuestion, CustomQuestionSchema, TicketSchema, CartSchema, Resale, ResaleSchema, TicketValueSchema, TicketResale, TicketResaleSchema, CartVisitor
 from flask_bcrypt import Bcrypt
 from itsdangerous import URLSafeTimedSerializer as urls
@@ -54,7 +54,7 @@ def login():
     return render_template("login.html", form=form)
 
 
-@app.route('/confirm/<token>')
+@app.route('/confirm/<token>', methods=["POST", "GET"])
 def confirm(token):
     s = urls(app.config['SECRET_KEY'])
     payload = s.loads(token)
@@ -62,24 +62,46 @@ def confirm(token):
     organizer = Organizer.query.filter_by(id=payload['organizer_id']).first()
     organizer.is_confirmed = True
     organizer.onboard_recognition = recognition
-    aschac = stripe.Account.create(
-        type="express",
-        email=organizer.email,
-        capabilities={
-            "card_payments": {"requested": True},
-            "transfers": {"requested": True},
-        },
-    )
-    organizer.stripe = aschac.id
-    link = stripe.AccountLink.create(
-        account=aschac.id,
-        refresh_url='https://admin.ticketty.pe/confirm/' + token,
-        return_url='https://admin.ticketty.pe/onboarded/' + recognition,
-        type="account_onboarding"
-    )
-    db.session.commit()
-    return render_template('confirm.html', link=link.url)
-
+    form = OnboardForm()
+    if form.validate_on_submit():
+        if form.is_nl.data:
+            aschac = stripe.Account.create(
+                type="express",
+                email=organizer.email,
+                country="nl",
+                capabilities={
+                    "card_payments": {"requested": True},
+                    "transfers": {"requested": True},
+                },
+            )
+            organizer.stripe = aschac.id   
+            link = stripe.AccountLink.create(
+                    account=aschac.id,
+                    refresh_url='https://admin.ticketty.pe/confirm/' + token,
+                    return_url='https://admin.ticketty.pe/onboarded/' + recognition,
+                    type="account_onboarding"
+            )
+            db.session.commit()
+            return redirect(link.url)
+        else:
+            aschac = stripe.Account.create(
+            type="express",
+                 email=organizer.email,
+                capabilities={
+                        "card_payments": {"requested": True},
+                        "transfers": {"requested": True},
+                 },
+            )
+            organizer.stripe = aschac.id
+            link = stripe.AccountLink.create(
+                    account=aschac.id,
+                    refresh_url='https://admin.ticketty.pe/confirm/' + token,
+                    return_url='https://admin.ticketty.pe/onboarded/' + recognition,
+                    type="account_onboarding"
+            )
+            db.session.commit()
+            return redirect(link.url)
+    return render_template('confirm.html', form=form)
 
 @app.route('/onboarded/<recognition>', methods=["GET", "POST"])
 def onboarded(recognition):
@@ -155,9 +177,15 @@ def event(event_id):
 @app.route('/event/resale/<event_id>/<id>')
 @login_required
 def event_resale(event_id, id):
-    cart = Cart.query.get(resale.cart_id)
     resale = Resale.query.get(int(id))
-    return render_template('resale.html', resale=resale, cart=cart)
+    cart = Cart.query.get(resale.cart_id)
+    cart_tickettype = CartTickettype.query.filter_by(cart_id=cart.id, is_resale=True).first()
+    resale_again = Resale.query.filter_by(cart_tickettype_id=cart_tickettype.id).first()
+    if resale_again:
+        return render_template('resale.html', resale=resale, cart=cart,  event_id=event_id, resale_again=resale_again)
+    else:
+     return render_template('resale.html', resale=resale, cart=cart, event_id=event_id)
+    
 @app.route('/create-tickettype/<event_id>', methods=["GET", "POST"])
 @login_required
 def create_tickettype(event_id):
@@ -317,7 +345,7 @@ def api_adjust_cart(recognition):
 @app.route('/api/cart/<event>/<recognition>')
 def api_cart(event, recognition):
     cart = Cart.query.filter_by(recognition=recognition).first()
-    cart_tickets = CartTickettype.query.filter_by(cart_id=cart.id).all()
+    cart_tickets = CartTickettype.query.filter_by(cart_id=cart.id, is_payed=False).all()
     cart_items = []
     for ct in cart_tickets:
         ticket = Tickettype.query.get(int(ct.tickettype_id))
@@ -504,7 +532,7 @@ def api_resale(event):
     tickets = Ticket.query.filter_by(party_id=event).all()
     resales = []
     for ticket in tickets:
-        if ticket.resale:
+        if ticket.resale and not ticket.is_resold:
             resales.append(ticket)
     schema = TicketSchema()
     return make_response(schema.dump(resales, many=True), 200)
@@ -575,6 +603,7 @@ def api_resale_redeem(id, old_recognition):
         if ticket.is_resold:
             return make_response("Tickets already generated!", 400)
         resale.is_resold = True
+        ticket.is_resold = True
         new_ticket = Ticket(
             value=token_hex(256),
             party_id=ticket.party_id,

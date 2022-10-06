@@ -3,7 +3,14 @@
 <section class="hero is-fullheight is-black is-bold">
   <div class="hero-body">
     <div class="container has-text-centered">
-        <a href="{{ link }}" class="button is-rounded">onboard</a>
+    	<form action="", method="post">
+    	 {{ form.hidden_tag() }}
+    	 <div class="form-check form-switch has-text-right  p-6">
+ 	                   {{ form.is_nl(class="form-check-input is-size-4", checked="true")}}
+	                   {{ form.is_nl.label(class="form-check-label is-size-4 title") }}
+             </div>
+			<button class="button is-rounded" type="submit">onboard</button>
+    	</form>
     </div>
 </div>
 </section>

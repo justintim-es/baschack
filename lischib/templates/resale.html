@@ -13,5 +13,14 @@
                 </p>
             </div>
         </div>
+   	<div class="hero-body">
+	<div class="container has-text-centered">
+			{% if resale_again %}
+			<p class="subtitle">
+              is resold <a href="{{ url_for('event_resale', event_id=event_id, id=resale_again.id) }}">info</a>
+            </p>
+            {% endif %}
+	</div>
+   	</div>
     </section>
 {% endblock content %}
