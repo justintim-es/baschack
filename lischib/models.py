@@ -72,7 +72,7 @@ class CartTickettype(db.Model):
     expires = db.Column(db.DateTime(), nullable=True)
     date = db.Column(db.DateTime(), default=datetime.now())
     reserved_until = db.Column(
-        db.DateTime(), default=datetime.now()+timedelta(minutes=20))
+        db.DateTime(), nullable=False)
 
 
 class CartItem:

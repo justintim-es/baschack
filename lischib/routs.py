@@ -302,6 +302,7 @@ def api_create_cart():
         cart_id=cart.id,
         quantity=quantity,
         is_payed=False,
+        reserved_until=datetime.now() + timedelta(minutes=20)
     )
     db.session.add(cart_ticket)
     db.session.commit()
